@@ -11,7 +11,7 @@ typedef struct CMD_LINE_INFO_TAG
 
 typedef struct ELF_INSPECTOR_INFO_TAG
 {
-    ELF_FILE_HANDLE elf_handle;
+    ELF_INFO_HANDLE elf_handle;
 } ELF_INSPECTOR_INFO;
 
 typedef enum ARGUEMENT_TYPE_TAG
@@ -53,14 +53,20 @@ static int parse_command_line(int argc, char* argv[], CMD_LINE_INFO* cmd_info)
 }
 
 // elf_inspector -c <filename>
-
 int main(int argc, char* argv[])
 {
     int result;
     CMD_LINE_INFO cmd_info;
+    ELF_INSPECTOR_INFO elf_info;
     memset(&cmd_info, 0, sizeof(CMD_LINE_INFO));
+    memset(&elf_info, 0, sizeof(ELF_INSPECTOR_INFO));
 
     if (parse_command_line(argc, argv, &cmd_info) != 0)
+    {
+        (void)printf("Failure parsing command line\r\n");
+        result = __LINE__;
+    }
+    else if ((elf_info.elf_handle = elf_load_file(cmd_info.elf_file)) == NULL)
     {
         (void)printf("Failure parsing command line\r\n");
         result = __LINE__;
@@ -69,6 +75,5 @@ int main(int argc, char* argv[])
     {
         result = 0;
     }
-
     return result;
 }

@@ -12,7 +12,7 @@ typedef struct MEM_MAP_TAG
     off_t file_size;
 } MEM_MAP;
 
-MEM_MAP_HANDLE create_mem_map(const char* filename)
+MEM_MAP_HANDLE mem_map_create(const char* filename)
 {
     MEM_MAP* result;
     if (filename == NULL)
@@ -65,7 +65,7 @@ MEM_MAP_HANDLE create_mem_map(const char* filename)
     return result;
 }
 
-void destroy_mem_map(MEM_MAP_HANDLE handle)
+void mem_map_destroy(MEM_MAP_HANDLE handle)
 {
     if (handle != NULL)
     {

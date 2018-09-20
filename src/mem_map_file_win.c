@@ -11,9 +11,12 @@ typedef struct MEM_MAP_TAG
 {
     HANDLE file_handle;
     HANDLE mapped_file;
+    LPVOID data_mapped;
 } MEM_MAP;
 
-MEM_MAP_HANDLE create_mem_map(const char* filename)
+#define BUF_SIZE    65536
+
+MEM_MAP_HANDLE mem_map_create(const char* filename)
 {
     MEM_MAP* result;
     if (filename == NULL)
@@ -67,12 +70,34 @@ MEM_MAP_HANDLE create_mem_map(const char* filename)
     return result;
 }
 
-void destroy_mem_map(MEM_MAP_HANDLE handle)
+void mem_map_destroy(MEM_MAP_HANDLE handle)
 {
     if (handle != NULL)
     {
         CloseHandle(handle->mapped_file);
-        CloseHandle(handle->mapped_file);
+        CloseHandle(handle->file_handle);
         free(handle);
     }
+}
+
+size_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char* data, size_t size_request)
+{
+    size_t result;
+    if (handle == NULL || data == NULL || size_request == 0)
+    {
+        result = 0;
+    }
+    else
+    {
+        handle->data_mapped = MapViewOfFile(handle->data_mapped, FILE_MAP_READ, 0, 0, BUF_SIZE);
+        if (handle->data_mapped == NULL)
+        {
+            result = 0;
+        }
+        else
+        {
+            result = BUF_SIZE;
+        }
+    }
+    return result;
 }

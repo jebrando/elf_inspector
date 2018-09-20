@@ -6,30 +6,80 @@
 #include "mem_map_file.h"
 #include <string.h>
 
-typedef struct ELF_FILE_TAG
+enum elf_hdr_index
 {
-    MEM_MAP_HANDLE elf_mem_handle;
-} ELF_FILE;
-
-ELF_FILE_HANDLE load_file(const char* filename)
+    elf_index_magic_num0 = 0,
+    elf_index_magic_num1 = 1,
+    elf_index_magic_num2 = 2,
+    elf_index_magic_num3 = 3
+};
+static const unsigned char MAGIC_NUM_VALUE[] = { 0x7F, 'E', 'L', 'F' };
+typedef struct ELF_INFO_TAG
 {
-    ELF_FILE* result;
+    MEM_MAP_HANDLE mem_map;
+} ELF_INFO;
 
-    if (filename == NULL)
+static int parse_elf_header(ELF_INFO* elf_info)
+{
+    int result;
+    const unsigned char* hdr_data;
+
+    size_t len = mem_map_initial_bytes(elf_info->mem_map, hdr_data, 0);
+    if (len == 0)
     {
-        result = NULL;
-    }
-    else if (result = (ELF_FILE*)malloc(sizeof(ELF_FILE)))
-    {
+        result = __LINE__;
     }
     else
     {
-        memset(result, 0, sizeof(ELF_FILE));
+        if (hdr_data[elf_index_magic_num0] != MAGIC_NUM_VALUE[elf_index_magic_num0] ||
+            hdr_data[elf_index_magic_num1] != MAGIC_NUM_VALUE[elf_index_magic_num1] ||
+            hdr_data[elf_index_magic_num2] != MAGIC_NUM_VALUE[elf_index_magic_num2] ||
+            hdr_data[elf_index_magic_num3] != MAGIC_NUM_VALUE[elf_index_magic_num3])
+        {
+            result = __LINE__;
+        }
+        else
+        {
+            result = 0;
+        }
+    }
+
+    return result;
+}
+
+ELF_INFO_HANDLE elf_load_file(const char* filename)
+{
+    ELF_INFO* result;
+
+    if (filename == NULL)
+    {
+        (void)printf("Invalid parameter specified\r\n");
+        result = NULL;
+    }
+    else if (result = (ELF_INFO*)malloc(sizeof(ELF_INFO)))
+    {
+        (void)printf("Failure allocating ELF file\r\n");
+    }
+    else
+    {
+        memset(result, 0, sizeof(ELF_INFO));
+        if ((result->mem_map = mem_map_create(filename)) == NULL)
+        {
+            free(result);
+            result = NULL;
+        }
+        else
+        {
+            if (parse_elf_header(result) != 0)
+            {
+
+            }
+        }
     }
     return result;
 }
 
-void unload_file(ELF_FILE_HANDLE handle)
+void elf_unload_file(ELF_INFO_HANDLE handle)
 {
     if (handle != NULL)
     {

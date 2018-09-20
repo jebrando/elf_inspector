@@ -10,10 +10,9 @@ extern "C" {
 
 typedef struct MEM_MAP_TAG* MEM_MAP_HANDLE;
 
-
-extern MEM_MAP_HANDLE create_mem_map(const char* filename);
-extern void destroy_mem_map(MEM_MAP_HANDLE handle);
-
+extern MEM_MAP_HANDLE mem_map_create(const char* filename);
+extern void mem_map_destroy(MEM_MAP_HANDLE handle);
+extern size_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char* data, size_t size_request);
 
 #ifdef __cplusplus
 }
