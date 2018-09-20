@@ -49,6 +49,11 @@ static int parse_command_line(int argc, char* argv[], CMD_LINE_INFO* cmd_info)
             argument_type = ARGUEMENT_TYPE_UNKNOWN;
         }
     }
+
+    if (cmd_info->elf_file == NULL)
+    {
+        result = __LINE__;
+    }
     return result;
 }
 

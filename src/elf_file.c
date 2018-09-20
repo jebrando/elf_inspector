@@ -56,7 +56,7 @@ ELF_INFO_HANDLE elf_load_file(const char* filename)
         (void)printf("Invalid parameter specified\r\n");
         result = NULL;
     }
-    else if (result = (ELF_INFO*)malloc(sizeof(ELF_INFO)))
+    else if (result = (ELF_INFO*)malloc(sizeof(ELF_INFO)) == NULL)
     {
         (void)printf("Failure allocating ELF file\r\n");
     }
