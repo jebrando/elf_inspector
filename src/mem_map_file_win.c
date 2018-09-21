@@ -12,6 +12,7 @@ typedef struct MEM_MAP_TAG
     HANDLE file_handle;
     HANDLE mapped_file;
     LPVOID data_mapped;
+    uint64_t file_length;
 } MEM_MAP;
 
 #define BUF_SIZE    65536
@@ -23,7 +24,7 @@ MEM_MAP_HANDLE mem_map_create(const char* filename)
     {
         result = NULL;
     }
-    else if (result = (MEM_MAP*)malloc(sizeof(MEM_MAP)))
+    else if ((result = (MEM_MAP*)malloc(sizeof(MEM_MAP))) == NULL)
     {
     }
     else
@@ -33,7 +34,7 @@ MEM_MAP_HANDLE mem_map_create(const char* filename)
 
         if ((file_handle = CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL)) == INVALID_HANDLE_VALUE)
         {
-            printf("Unable to open file: %s", filename);
+            printf("Unable to open file: %d:%s", GetLastError(), filename);
             free(result);
             result = NULL;
         }
@@ -41,11 +42,11 @@ MEM_MAP_HANDLE mem_map_create(const char* filename)
         {
             LARGE_INTEGER file_size = { 0 };
             GetFileSizeEx(file_handle, &file_size);
-            __int64 cbFile = file_size.QuadPart;
+            result->file_length = file_size.QuadPart;
 
-            if ((result->mapped_file = CreateFileMappingA(file_handle, NULL, PAGE_READONLY, 0, 0, NULL)) != NULL)
+            if ((result->mapped_file = CreateFileMappingA(file_handle, NULL, PAGE_READONLY, 0, 0, NULL)) == NULL)
             {
-                printf("unable to map file: %s", filename);
+                printf("unable to map file: %d:%s", GetLastError(), filename);
                 free(result);
                 result = NULL;
             }
@@ -80,7 +81,7 @@ void mem_map_destroy(MEM_MAP_HANDLE handle)
     }
 }
 
-size_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char* data, size_t size_request)
+uint64_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char** data, size_t size_request)
 {
     size_t result;
     if (handle == NULL || data == NULL || size_request == 0)
@@ -89,14 +90,16 @@ size_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char* data, s
     }
     else
     {
-        handle->data_mapped = MapViewOfFile(handle->data_mapped, FILE_MAP_READ, 0, 0, BUF_SIZE);
+        handle->data_mapped = MapViewOfFile(handle->mapped_file, FILE_MAP_READ, 0, 0, 0);
         if (handle->data_mapped == NULL)
         {
+            printf("Failure getting map view of file: %d", GetLastError());
             result = 0;
         }
         else
         {
-            result = BUF_SIZE;
+            *data = handle->data_mapped;
+            result = handle->file_length;
         }
     }
     return result;

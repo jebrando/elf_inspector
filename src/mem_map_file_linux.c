@@ -13,7 +13,7 @@
 typedef struct MEM_MAP_TAG
 {
     void* mapped_file;
-    off_t file_size;
+    uint64_t file_size;
     char* data_mapped;
 
 } MEM_MAP;
@@ -80,9 +80,9 @@ void mem_map_destroy(MEM_MAP_HANDLE handle)
     }
 }
 
-size_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char* data, size_t size_request)
+uint64_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char** data, size_t size_request)
 {
-    size_t result;
+    uint64_t result;
     if (handle == NULL || data == NULL || size_request == 0)
     {
         result = 0;
@@ -97,7 +97,7 @@ size_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char* data, s
         {
             result = size_request;
         }
-        data = handle->mapped_file;
+        *data = handle->mapped_file;
     }
     return result;
 }

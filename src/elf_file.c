@@ -37,6 +37,7 @@ typedef struct ELF_INFO_TAG
 {
     MEM_MAP_HANDLE mem_map;
     ELF_HEADER_INFO hdr_info;
+    uint64_t file_len;
 } ELF_INFO;
 
 static int parse_elf_header(ELF_INFO* elf_info)
@@ -44,8 +45,8 @@ static int parse_elf_header(ELF_INFO* elf_info)
     int result;
     const unsigned char* hdr_data;
 
-    size_t len = mem_map_initial_bytes(elf_info->mem_map, hdr_data, 0);
-    if (len == 0)
+    elf_info->file_len = mem_map_initial_bytes(elf_info->mem_map, &hdr_data, 10);
+    if (elf_info->file_len == 0)
     {
         result = __LINE__;
     }
