@@ -25,8 +25,9 @@ MEM_MAP_HANDLE mem_map_create(const char* filename)
     {
         result = NULL;
     }
-    else if (result = (MEM_MAP*)malloc(sizeof(MEM_MAP)))
+    else if ((result = (MEM_MAP*)malloc(sizeof(MEM_MAP))) == NULL)
     {
+        printf("Unable to allocate memory map structure");
     }
     else
     {
@@ -85,6 +86,7 @@ uint64_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char** data
     uint64_t result;
     if (handle == NULL || data == NULL || size_request == 0)
     {
+        printf("Invalid parameter");
         result = 0;
     }
     else 
@@ -97,7 +99,7 @@ uint64_t mem_map_initial_bytes(MEM_MAP_HANDLE handle, const unsigned char** data
         {
             result = size_request;
         }
-        *data = handle->mapped_file;
+        *data = (const unsigned char*)handle->mapped_file;
     }
     return result;
 }
